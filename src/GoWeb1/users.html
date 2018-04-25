@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{.Title}}</title>
+<link rel="shortcut icon" type="image/ico" href="/css/favicon.ico" />
+
+<style>
+#customers {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 70%;
+    margin: 0px auto;
+}
+
+#customers td, #customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    background-color: #4CAF50;
+    color: white;
+}
+</style>
+</head>
+<body>
+	<div align="center" ><h2>Danh sách user</h2></div>
+	<table id="customers" >
+		<tr>
+			<th>Số thứ tự</th>
+			<th>Họ và tên</th>
+			<th>Tuổi</th>
+			<th>Thao tác</th>
+		</tr>
+		{{$count := 0}}
+		{{range $index, $value := .Resultset}}
+		{{$count := inc $index}}
+	    <tr> 
+  			
+	    	<td align="center" >{{$count}}</td>
+	    	<td>{{.Name}}</td>
+	    	<td>{{.Age}}</td>
+	    	<td align="center" ><button onclick="xoaUser({{.Id}})" >Xóa</button> </td>
+	    </tr> 
+	    
+    	{{end}}
+	</table>
+	
+	<script type="text/javascript">
+	 function xoaUser(id) {
+		if(!confirm("Bạn có chắc chăn muốn xóa?")){
+			return;
+		}
+	    var userId = id;
+	    console.log(userId);
+	    xmlhttp=new XMLHttpRequest();
+	    xmlhttp.onreadystatechange=function()
+	    {
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		{
+// 		    alert(xmlhttp.responseText);
+		    location.reload();
+		}
+	    }
+	    xmlhttp.open("POST","http://localhost:8080/users/xoauser/" + userId,true);
+	    xmlhttp.send();
+	}	
+	
+	</script>
+</body>
+</html>
