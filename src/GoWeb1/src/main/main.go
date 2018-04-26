@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
+	"time" 
 )
 
 type PageVars struct {
@@ -89,6 +89,7 @@ func KinhNghiem(w http.ResponseWriter, r *http.Request) {
 }
 
 func listUsers(w http.ResponseWriter, r *http.Request) {
+	log.Println("list user")
 	start := time.Now()
 	HomePageVars := PageVars{
 		Title: "Danh sách user",
@@ -146,6 +147,7 @@ func XoaUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	log.Println("chao")
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/kinhnghiem", KinhNghiem)
