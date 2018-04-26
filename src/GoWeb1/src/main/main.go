@@ -48,7 +48,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 			i, err := strconv.Atoi(userId)
 			fmt.Println(i)
-			DeleteFromDB(i, w)
+			go DeleteFromDB(i, w)
 			if err != nil {
 				// handle error
 				fmt.Println(err)
@@ -124,6 +124,7 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
+	resulltSet = resulltSet[1:50]
 	HomePageVars.Resultset = resulltSet
 //	fmt.Println("result set: ", resulltSet)
 	err = t.Execute(w, HomePageVars)
