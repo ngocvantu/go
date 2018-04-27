@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"time" 
+	 "os"
 )
 
 type PageVars struct {
@@ -17,6 +18,7 @@ type PageVars struct {
 }
 
 var db, errglobal = sql.Open("mysql", "root:@tcp(localhost:3306)/test")
+var file, err = os.OpenFile("log.txt", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 
 type User struct {
 	Id   int
@@ -25,10 +27,12 @@ type User struct {
 }
 
 func DeleteFromDB(userID int, w http.ResponseWriter) {
+	log.Println("SQL: DELETE FROM users WHERE userid =", userID);
 	_, err := db.Exec("DELETE FROM users WHERE userid = ?;", userID)
 	if err != nil {
 		panic(err)
 	}
+	log.Println("Xóa thành công");
 	w.Write([]byte("Xóa thành công"))
 }
 
@@ -90,13 +94,14 @@ func KinhNghiem(w http.ResponseWriter, r *http.Request) {
 
 func listUsers(w http.ResponseWriter, r *http.Request) {
 	log.Println("list user")
+	
 	start := time.Now()
 	HomePageVars := PageVars{
 		Title: "Danh sách user",
 	}
 
 	//	insert, err := db.Query("INSERT INTO users (username, age) VALUES ( 'tunguyen', '25' )")
-	results, err := db.Query("SELECT * FROM users")
+	results, err := db.Query("SELECT * FROM users order by userid desc limit 50")
 
 	if err != nil {
 		//		fmt.Println("error")
@@ -125,7 +130,7 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
-	resulltSet = resulltSet[1:50]
+//	resulltSet = resulltSet[1:50]
 	HomePageVars.Resultset = resulltSet
 //	fmt.Println("result set: ", resulltSet)
 	err = t.Execute(w, HomePageVars)
@@ -146,13 +151,37 @@ func XoaUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func AddUser(w http.ResponseWriter, r *http.Request){
+	start := time.Now()
+	log.Println("add user start")
+	// parse form
+	r.ParseForm()
+	username	:= r.FormValue("username")
+	age , _		:= strconv.Atoi(r.FormValue("age"))
+	
+	// insert to DB
+	log.Println("age: ", age)
+	go db.Exec("INSERT INTO users (username, age) VALUES (?, ?);", username, age)
+	 
+	log.Println("INSERT INTO users (username, age) VALUES ('",username,"',",age,")","\n")
+	
+	// redirect
+	http.Redirect(w, r, "/users", 302)
+	log.Println("add user end")
+	excuteTime := time.Since(start)
+	fmt.Println("Add user took: ", excuteTime)
+	log.Println("Add user took: ", excuteTime)
+}
+
 func main() {
-	log.Println("chao")
+	defer file.Close()
+	log.SetOutput(file)
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/kinhnghiem", KinhNghiem)
 	http.HandleFunc("/users", listUsers)
 	http.HandleFunc("/users/xoauser", XoaUser)
+	http.HandleFunc("/adduser", AddUser)
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	log.Fatal(http.ListenAndServe(":8090", nil))

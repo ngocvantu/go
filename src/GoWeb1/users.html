@@ -6,6 +6,23 @@
 <link rel="shortcut icon" type="image/ico" href="/css/favicon.ico" />
 
 <style>
+input[type=button], input[type=submit] {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 14px 27px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+input[type=text] {
+    width: 30%;
+    padding: 12px 20px;
+    margin: px 0;
+    box-sizing: border-box;
+}
+
 #customers {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
@@ -32,7 +49,18 @@
 </style>
 </head>
 <body>
-	<div align="center" ><h2>Danh sách user</h2></div>
+	<div align="center" >
+		<h2>Thêm user</h2>
+		<form method="post" action="/adduser">
+			<input type="text" placeholder="username" name="username" autofocus>
+			<input type="text" placeholder="age"      name="age">
+			<input type="submit" >
+		</form>
+	</div> 
+	<div align="center" ><h2>Danh sách user</h2></div> 
+	<div align="center" >
+		<input type="text" placeholder="Search here" id="myInput" onkeyup="myFunction()" >
+	</div>
 	<table id="customers" >
 		<tr>
 			<th>Số thứ tự</th>
@@ -47,7 +75,9 @@
   			
 	    	<td align="center" >{{$count}}</td>
 	    	<td>{{.Name}}</td>
-	    	<td>{{.Age}}</td>
+	    	<td  {{if ge .Age 80}} style="background-color: yellow;" {{ end }}> 
+	    	 	<span>{{.Age}}</span> 
+	    	</td>
 	    	<td align="center" ><button onclick="xoaUser({{.Id}})" >Xóa</button> </td>
 	    </tr> 
 	    
@@ -74,6 +104,23 @@
 	    xmlhttp.send();
 	}	
 	
+	 function myFunction() {
+		  var input, filter, table, tr, td, i;
+		  input = document.getElementById("myInput");
+		  filter = input.value.toUpperCase();
+		  table = document.getElementById("customers");
+		  tr = table.getElementsByTagName("tr");
+		  for (i = 0; i < tr.length; i++) {
+		    td = tr[i].getElementsByTagName("td")[1];
+		    if (td) {
+		      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+		        tr[i].style.display = "";
+		      } else {
+		        tr[i].style.display = "none";
+		      }
+		    }       
+		  }
+		}
 	</script>
 </body>
 </html>
