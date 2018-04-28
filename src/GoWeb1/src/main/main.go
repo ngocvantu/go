@@ -52,7 +52,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 			i, err := strconv.Atoi(userId)
 			fmt.Println(i)
-			go DeleteFromDB(i, w)
+			DeleteFromDB(i, w)
 			if err != nil {
 				// handle error
 				fmt.Println(err)
@@ -161,7 +161,7 @@ func AddUser(w http.ResponseWriter, r *http.Request){
 	
 	// insert to DB
 	log.Println("age: ", age)
-	go db.Exec("INSERT INTO users (username, age) VALUES (?, ?);", username, age)
+	db.Exec("INSERT INTO users (username, age) VALUES (?, ?);", username, age)
 	 
 	log.Println("INSERT INTO users (username, age) VALUES ('",username,"',",age,")","\n")
 	
@@ -174,9 +174,10 @@ func AddUser(w http.ResponseWriter, r *http.Request){
 }
 
 func main() {
+	fmt.Println("chao1")
 	defer file.Close()
 	log.SetOutput(file)
-
+	fmt.Println("chao2")
 	http.HandleFunc("/", root)
 	http.HandleFunc("/kinhnghiem", KinhNghiem)
 	http.HandleFunc("/users", listUsers)
