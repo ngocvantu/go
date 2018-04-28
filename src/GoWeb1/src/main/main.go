@@ -9,11 +9,14 @@ import (
 	"net/http"
 	"strconv"
 	"time" 
+	"strings"
 	 "os"
+	 "regexp"
 )
 
 type PageVars struct {
 	Title     string
+	NumberObKnownVocab int
 	Resultset []User
 }
 
@@ -52,7 +55,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 			i, err := strconv.Atoi(userId)
 			fmt.Println(i)
-			go DeleteFromDB(i, w)
+			DeleteFromDB(i, w)
 			if err != nil {
 				// handle error
 				fmt.Println(err)
@@ -161,7 +164,7 @@ func AddUser(w http.ResponseWriter, r *http.Request){
 	
 	// insert to DB
 	log.Println("age: ", age)
-	go db.Exec("INSERT INTO users (username, age) VALUES (?, ?);", username, age)
+	db.Exec("INSERT INTO users (username, age) VALUES (?, ?);", username, age)
 	 
 	log.Println("INSERT INTO users (username, age) VALUES ('",username,"',",age,")","\n")
 	
@@ -173,6 +176,81 @@ func AddUser(w http.ResponseWriter, r *http.Request){
 	log.Println("Add user took: ", excuteTime)
 }
 
+func Knownvocab(w http.ResponseWriter, r *http.Request){
+	start := time.Now()
+	if r.Method == "GET" {
+		KnownvocabVar := &PageVars{
+			Title: "Knownvocab",
+		}
+		t,err := template.ParseFiles("knownvocab.html")
+		if err != nil {
+			log.Panicln(err.Error())
+		}
+		err = t.Execute(w, KnownvocabVar)
+		if err != nil { // if there is an error
+			log.Print("template executing error: ", err) 
+		}
+		
+	} else {
+		
+		
+		r.ParseForm()
+		content := r.FormValue("content") 
+		contentArr := strings.Split(content, "\n")
+		var i int
+		i  = 0
+		for  _, v := range contentArr {
+			
+			contentArrArr := strings.Split(v, " ")
+			for _, v1 := range contentArrArr { 
+				thisIsAKnownVocab := false
+				i = i+1
+				listKnowVocab, _ := db.Query("SELECT * FROM known_vocab")
+				var processedString string
+				for listKnowVocab.Next() {
+					var vocab_id string
+					var vocab string
+					err = listKnowVocab.Scan(&vocab_id, &vocab) 
+					if err != nil {
+						panic(err.Error()) // proper error handling instead of panic in your app
+					}
+					
+					
+					reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+				    if err != nil {
+				        log.Fatal(err)
+				    }
+				    processedString = reg.ReplaceAllString(v1, "")
+				    fmt.Println(processedString)
+					
+					if  strings.ToUpper(vocab) == strings.ToUpper(strings.Trim(processedString, " ")) {
+						thisIsAKnownVocab = true
+						break
+					}
+					
+					fmt.Println(">>>>>>>>>",vocab)
+					fmt.Println(">>>>>>>>>",processedString)
+					fmt.Println(">>",thisIsAKnownVocab)
+				}
+				
+				if thisIsAKnownVocab == false {
+					db.Exec("insert into known_vocab (known_vocab_word) value (?) ;", strings.Trim(processedString, " "))
+				}
+			}
+		}
+//		numberOfKnowVocab := 0;
+//		Title := "Knownvocab"
+		
+		http.Redirect(w, r, "/knownvocab", http.StatusFound)
+		
+		
+		elapse := time.Since(start)
+		log.Println("Add know vocab take: ", elapse)
+		fmt.Println("Add know vocab take: ", elapse)
+	}
+	
+}
+
 func main() {
 	defer file.Close()
 	log.SetOutput(file)
@@ -182,6 +260,7 @@ func main() {
 	http.HandleFunc("/users", listUsers)
 	http.HandleFunc("/users/xoauser", XoaUser)
 	http.HandleFunc("/adduser", AddUser)
+	http.HandleFunc("/knownvocab", Knownvocab)
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	log.Fatal(http.ListenAndServe(":8090", nil))
