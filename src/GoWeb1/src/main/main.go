@@ -13,6 +13,7 @@ import (
 	"strings"
 	 "os"
 	 "regexp"
+	"GoWeb1/src/database"
 )
 
 type PageVars struct {
@@ -31,12 +32,12 @@ type User struct {
 }
 
 func DeleteFromDB(userID int, w http.ResponseWriter) {
-	log.Println("SQL: DELETE FROM users WHERE userid =", userID);
+	log.Println("SQL: DELETE FROM users WHERE userid =", userID)
 	_, err := db.Exec("DELETE FROM users WHERE userid = ?;", userID)
 	if err != nil {
 		panic(err)
 	}
-	log.Println("Xóa thành công");
+	log.Println("Xóa thành công")
 	w.Write([]byte("Xóa thành công"))
 }
 
@@ -211,7 +212,7 @@ func Knownvocab(w http.ResponseWriter, r *http.Request){
 				for listKnowVocab.Next() {
 					var vocab_id string
 					var vocab string
-					err = listKnowVocab.Scan(&vocab_id, &vocab) 
+					err = listKnowVocab.Scan(&vocab_id, &vocab)
 					if err != nil {
 						panic(err.Error()) // proper error handling instead of panic in your app
 					}
@@ -255,6 +256,8 @@ func Knownvocab(w http.ResponseWriter, r *http.Request){
 func main() {
 	defer file.Close()
 	log.SetOutput(file)
+
+	database.InitDB()
 
 	http.HandleFunc("/", root)
 	http.HandleFunc("/kinhnghiem", KinhNghiem)
