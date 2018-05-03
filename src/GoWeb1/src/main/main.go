@@ -171,10 +171,10 @@ func AddUser(w http.ResponseWriter, r *http.Request){
 	log.Println("INSERT INTO users (username, age) VALUES ('",username,"',",age,")","\n")
 	
 	// redirect
-	http.Redirect(w, r, "/users", 302)
+	http.Redirect(w, r, "/users", http.StatusFound)
 	log.Println("add user end")
 	excuteTime := time.Since(start)
-	fmt.Println("Add user took: ", excuteTime)
+	fmt.Println("Add user took: ", excuteTime) 
 	log.Println("Add user took: ", excuteTime)
 }
 
@@ -255,7 +255,7 @@ func Knownvocab(w http.ResponseWriter, r *http.Request){
 
 func main() {
 	defer file.Close()
-	log.SetOutput(file)
+	log.SetOutput(file) 
 
 	database.InitDB()
 
