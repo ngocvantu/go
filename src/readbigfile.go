@@ -7,10 +7,13 @@ import (
 	"golang.org/x/text/transform"
 	"fmt"
 	"bufio"
+	"time"
 )
 
 func main() {
-	file, _ := os.Open("D:\\2017B\\WMS\\trunk\\src\\slimks-final\\WebContent\\WEB-INF\\kousu_sql.xml")
+	start := time.Now()
+	//file, _ := os.Open("D:\\2017B\\WMS\\trunk\\src\\slimks-final\\WebContent\\WEB-INF\\kousu_sql.xml")
+	file, _ := os.Open("D:\\2017B\\WMS\\trunk\\src\\slimks-final\\JavaSource\\logs\\slim\\ks\\debug_log.txt")
 	defer file.Close()
 	var r io.Reader
 
@@ -23,5 +26,7 @@ func main() {
 	}
 
 	 //fmt.Print(string(butes))
+	ellapse := time.Since(start)
 
+	fmt.Println("time: ", ellapse)
 }
