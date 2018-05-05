@@ -253,6 +253,41 @@ func Knownvocab(w http.ResponseWriter, r *http.Request){
 	
 }
 
+type Task struct {
+	Id int
+	Content string
+	DateCreated string
+	IdComplete bool
+}
+
+type TaskPage struct {
+	Title string
+	TaskList []Task
+}
+
+func Tasks (w http.ResponseWriter, r *http.Request){
+
+	if r.Method == "GET" {
+		s := []Task{}
+		task := &Task{}
+		tasks, _ := db.Query("SELECT * FROM tasks")
+		for tasks.Next()  {
+			tasks.Scan(&task.Id, &task.Content, &task.DateCreated, &task.IdComplete )
+			s = append(s, *task)
+		}
+		fmt.Println(s)
+
+		t, _:= template.ParseFiles("tasks.html")
+		er := t.Execute(w, &TaskPage{"Task today", s,})
+
+		if er != nil {
+			panic( er)
+		}
+	}	else {
+
+	}
+}
+
 func main() {
 	defer file.Close()
 	log.SetOutput(file) 
@@ -265,6 +300,7 @@ func main() {
 	http.HandleFunc("/users/xoauser", XoaUser)
 	http.HandleFunc("/adduser", AddUser)
 	http.HandleFunc("/knownvocab", Knownvocab)
+	http.HandleFunc("/tasks", Tasks)
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	log.Fatal(http.ListenAndServe(":8090", nil))

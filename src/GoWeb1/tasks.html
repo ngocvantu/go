@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>{{.Title}}</title>
+    <style type="text/css">
+        table.task_today {
+            border: 3px solid #000000;
+            float: left;
+            text-align: left;
+            border-collapse: collapse;
+            width: 47%;
+        }
+        table.task_today td, table.task_today th {
+            border: 1px solid #000000;
+            padding: 5px 4px;
+
+        }
+        table.task_today tbody td {
+            font-size: 15px;
+        }
+        table.task_today th {
+            background: #CFCFCF;
+            background: -moz-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+            background: -webkit-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+            background: linear-gradient(to bottom, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+            border-bottom: 3px solid #000000;
+        }
+        table.task_today   th {
+            font-size: 17px;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+    <center>
+        <h2>Tasks today</h2>
+    </center>
+    <div style="text-align:center;" >
+            <table class="task_today" id="task_today" >
+                <tr>
+                    <th colspan="2">Task đang làm</th>
+                </tr>
+                <tr>
+                    <th>Nội dung task</th>
+                    <th>Trạng thái</th>
+                </tr>
+                {{range $k, $v := .TaskList}}
+                    <tr>
+                        <td>{{.Content}}</td>
+                        {{if eq .IdComplete false}}
+                            <td style="background-color: yellow" >Đang làm</td>
+                        {{else}}
+                            <td>Đã xong</td>
+                        {{ end }}
+                    </tr>
+                {{end}}
+            </table>
+
+            <table class="task_today" id="task_today_completed" style="float: right;" >
+                <tr>
+                    <th colspan="2">Task đã hoàn thành</th>
+                </tr>
+                <tr>
+                    <th>Nội dung task</th>
+                    <th>Trạng thái</th>
+                </tr>
+            {{range $k, $v := .TaskList}}
+                <tr>
+                    <td>{{.Content}}</td>
+                    <td>{{.IdComplete}}</td>
+                </tr>
+            {{end}}
+            </table>
+    </div>
+</body>
+</html>
