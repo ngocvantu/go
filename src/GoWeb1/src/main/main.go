@@ -14,6 +14,7 @@ import (
 	 "os"
 	 "regexp"
 	"GoWeb1/src/database"
+	"io/ioutil"
 )
 
 type PageVars struct {
@@ -266,16 +267,15 @@ type TaskPage struct {
 }
 
 func Tasks (w http.ResponseWriter, r *http.Request){
-
+	defer r.Body.Close()
 	if r.Method == "GET" {
 		s := []Task{}
 		task := &Task{}
-		tasks, _ := db.Query("SELECT * FROM tasks")
+		tasks, _ := db.Query("SELECT * FROM tasks where DATECREATED = CURDATE()")
 		for tasks.Next()  {
 			tasks.Scan(&task.Id, &task.Content, &task.DateCreated, &task.IdComplete )
 			s = append(s, *task)
 		}
-		fmt.Println(s)
 
 		t, _:= template.ParseFiles("tasks.html")
 		er := t.Execute(w, &TaskPage{"Task today", s,})
@@ -284,7 +284,39 @@ func Tasks (w http.ResponseWriter, r *http.Request){
 			panic( er)
 		}
 	}	else {
+		r.ParseForm()
+		taskContent	:= r.FormValue("task-content")
+		if len(taskContent) > 0 {
+			db.Exec("insert into tasks (CONTENT, DATECREATED, ISCOMPLETE) VALUES (?, CURDATE(), 0)",taskContent)
+		}
+		http.Redirect(w, r, "/tasks", http.StatusFound)
+	}
+}
 
+func Complete(w http.ResponseWriter, r *http.Request){
+	defer r.Body.Close()
+	if r.Method == "POST" {
+		b, _ := ioutil.ReadAll(r.Body)
+		db.Exec("update tasks set ISCOMPLETE = 1 WHERE id = ?",string(b))
+		w.Write([]byte("Xóa thành công"))
+	}
+}
+
+func LamTiep(w http.ResponseWriter, r *http.Request){
+	defer r.Body.Close()
+	if r.Method == "POST" {
+		b, _ := ioutil.ReadAll(r.Body)
+		db.Exec("update tasks set ISCOMPLETE = 0 WHERE id = ?",string(b))
+		w.Write([]byte("Xóa thành công"))
+	}
+}
+
+func Xoa(w http.ResponseWriter, r *http.Request){
+	defer r.Body.Close()
+	if r.Method == "POST" {
+		b, _ := ioutil.ReadAll(r.Body)
+		db.Exec("delete from tasks WHERE id = ?",string(b))
+		w.Write([]byte("Xóa thành công"))
 	}
 }
 
@@ -301,6 +333,9 @@ func main() {
 	http.HandleFunc("/adduser", AddUser)
 	http.HandleFunc("/knownvocab", Knownvocab)
 	http.HandleFunc("/tasks", Tasks)
+	http.HandleFunc("/complete", Complete)
+	http.HandleFunc("/lamtiep", LamTiep)
+	http.HandleFunc("/xoa", Xoa)
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	log.Fatal(http.ListenAndServe(":8090", nil))

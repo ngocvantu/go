@@ -33,6 +33,18 @@
             text-align: center;
         }
 
+        input[type=text] {
+            width: 40%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+
+         input[type=submit]{
+             padding: 12px 22px;
+             margin: 8px 0;
+         }
+
     </style>
 </head>
 <body>
@@ -46,17 +58,15 @@
                 </tr>
                 <tr>
                     <th>Nội dung task</th>
-                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
                 </tr>
                 {{range $k, $v := .TaskList}}
+                    {{if eq .IdComplete false}}
                     <tr>
                         <td>{{.Content}}</td>
-                        {{if eq .IdComplete false}}
-                            <td style="background-color: yellow" >Đang làm</td>
-                        {{else}}
-                            <td>Đã xong</td>
-                        {{ end }}
+                        <td align="center" ><button value="Đã xong" onclick="complete({{.Id}})">Đã xong</button></td>
                     </tr>
+                    {{end}}
                 {{end}}
             </table>
 
@@ -66,15 +76,64 @@
                 </tr>
                 <tr>
                     <th>Nội dung task</th>
-                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
                 </tr>
             {{range $k, $v := .TaskList}}
+            {{if ne .IdComplete false}}
                 <tr>
                     <td>{{.Content}}</td>
-                    <td>{{.IdComplete}}</td>
+                    <td align="center" >
+                        <button value="Làm tiếp"  onclick="restore({{.Id}})">Làm tiếp</button>
+                        <button value="Xóa"  onclick="xoa({{.Id}})">Xóa</button>
+                    </td>
                 </tr>
+             {{end}}
             {{end}}
             </table>
     </div>
+    <div style="clear: left;" ></div>
+    <div id="addTask" >
+        <form action="/tasks" method="post" >
+            <input type="text" id="task-content" name="task-content" placeholder="Add task" autofocus >
+            <input type="submit" >
+        </form>
+    </div>
+
+
+<script type="application/javascript">
+    function restore(id) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                location.reload();
+            }
+        };
+        xhttp.open("POST", "/lamtiep", true);
+        xhttp.send(id);
+    }
+
+    function complete(id) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                location.reload();
+            }
+        };
+        xhttp.open("POST", "/complete", true);
+        xhttp.send(id);
+    }
+
+    function xoa(id) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                location.reload();
+            }
+        };
+        xhttp.open("POST", "/xoa", true);
+        xhttp.send(id);
+    }
+
+</script>
 </body>
 </html>
