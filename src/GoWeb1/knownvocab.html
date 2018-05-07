@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{.Title}}</title>
+<link rel="shortcut icon" type="image/ico" href="/css/favicon.ico" />
+<style type="text/css">
+	input[type=button], input[type=submit] {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 14px 27px;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+<a href="/" >Home</a><br>
+	<div style="margin: 0px auto" align="center" >
+	<form action="/knownvocab" method="post">
+		<h2>Nhập đoạn văn gồm những từ đã biết (thuộc) vào ô dưới</h2>
+		<textarea name="content" rows="24" cols="79"></textarea><br>
+		<input type="submit" >
+	</form>
+	</div>
+</body>
+</html>
