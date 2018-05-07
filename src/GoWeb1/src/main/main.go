@@ -166,22 +166,22 @@ func AddUser(w http.ResponseWriter, r *http.Request){
 	log.Println("INSERT INTO users (username, age) VALUES ('",username,"',",age,")","\n")
 	
 	// redirect
-	http.Redirect(w, r, "/users", 302)
+	http.Redirect(w, r, "/users", http.StatusFound)
 	log.Println("add user end")
 	excuteTime := time.Since(start)
-	fmt.Println("Add user took: ", excuteTime)
+	fmt.Println("Add user took: ", excuteTime) 
 	log.Println("Add user took: ", excuteTime)
 }
 
 func main() {
 	defer file.Close()
-	log.SetOutput(file)
+	log.SetOutput(file) 
 
-	http.HandleFunc("/", root)
-	http.HandleFunc("/kinhnghiem", KinhNghiem)
-	http.HandleFunc("/users", listUsers)
+	http.HandleFunc("/"				, root)
+	http.HandleFunc("/kinhnghiem"	, KinhNghiem)
+	http.HandleFunc("/users"		, listUsers)
 	http.HandleFunc("/users/xoauser", XoaUser)
-	http.HandleFunc("/adduser", AddUser)
+	http.HandleFunc("/adduser"		, AddUser)
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	log.Fatal(http.ListenAndServe(":8090", nil))
