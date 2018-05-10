@@ -54,16 +54,18 @@
     <div style="text-align:center;" >
             <table class="task_today" id="task_today" >
                 <tr>
-                    <th colspan="2">Task đang làm</th>
+                    <th colspan="3">Task đang làm</th>
                 </tr>
                 <tr>
                     <th>Nội dung task</th>
+                    <th>Bắt đầu</th>
                     <th>Thao tác</th>
                 </tr>
                 {{range $k, $v := .TaskList}}
                     {{if eq .IdComplete false}}
                     <tr>
                         <td>{{.Content}}</td>
+                        <td>{{.StartTime}}</td>
                         <td align="center" ><button value="Đã xong" onclick="complete({{.Id}})">Đã xong</button></td>
                     </tr>
                     {{end}}
@@ -72,16 +74,20 @@
 
             <table class="task_today" id="task_today_completed" style="float: right;" >
                 <tr>
-                    <th colspan="2">Task đã hoàn thành</th>
+                    <th colspan="4">Task đã hoàn thành</th>
                 </tr>
                 <tr>
                     <th>Nội dung task</th>
+                    <th>Kết thúc</th>
+                    <th>Tổng thời gian</th>
                     <th>Thao tác</th>
                 </tr>
             {{range $k, $v := .TaskList}}
             {{if ne .IdComplete false}}
                 <tr>
                     <td>{{.Content}}</td>
+                    <td>{{.EndTime}}</td>
+                    <td>{{.TotalTime}}</td>
                     <td align="center" >
                         <button value="Làm tiếp"  onclick="restore({{.Id}})">Làm tiếp</button>
                         <button value="Xóa"  onclick="xoa({{.Id}})">Xóa</button>

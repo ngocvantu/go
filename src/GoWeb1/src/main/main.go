@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -6,20 +5,20 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"regexp"
 	"strconv"
-	"time" 
 	"strings"
-	 "os"
-	 "regexp"
-	"io/ioutil"
+	"time"
 )
 
 type PageVars struct {
-	Title     string
+	Title              string
 	NumberObKnownVocab int
-	Resultset []User
+	Resultset          []User
 }
 
 var db, errglobal = sql.Open("mysql", "root:@tcp(localhost:3306)/test")
@@ -46,7 +45,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 	//	fmt.Fprintf(w, "\n")
 	//	fmt.Fprintf(w, "URL %s!", r.URL)
 	//	fmt.Fprintf(w, "\n")
-	//	fmt.Fprintf(w, "RemoteAddr %s!", r.RemoteAddr) 
+	//	fmt.Fprintf(w, "RemoteAddr %s!", r.RemoteAddr)
 	if r.Method == "POST" {
 
 		if r.URL.Path[0:15] == "/users/xoauser/" {
@@ -61,10 +60,10 @@ func root(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				// handle error
 				fmt.Println(err)
-			} 
+			}
 			elapsed := time.Since(start)
-		    fmt.Println("Delete took: ", elapsed)
-		} 
+			fmt.Println("Delete took: ", elapsed)
+		}
 	} else {
 		HomePageVars := &PageVars{
 			Title: "Xin chao",
@@ -99,7 +98,7 @@ func KinhNghiem(w http.ResponseWriter, r *http.Request) {
 
 func listUsers(w http.ResponseWriter, r *http.Request) {
 	log.Println("list user")
-	
+
 	start := time.Now()
 	HomePageVars := PageVars{
 		Title: "Danh sách user",
@@ -135,12 +134,12 @@ func listUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
-//	resulltSet = resulltSet[1:50]
+	//	resulltSet = resulltSet[1:50]
 	HomePageVars.Resultset = resulltSet
-//	fmt.Println("result set: ", resulltSet)
+	//	fmt.Println("result set: ", resulltSet)
 	err = t.Execute(w, HomePageVars)
 	elapsed := time.Since(start)
-    fmt.Println("Listuser took: ", elapsed)
+	fmt.Println("Listuser took: ", elapsed)
 }
 
 func XoaUser(w http.ResponseWriter, r *http.Request) {
@@ -156,57 +155,56 @@ func XoaUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AddUser(w http.ResponseWriter, r *http.Request){
+func AddUser(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	log.Println("add user start")
 	// parse form
 	r.ParseForm()
-	username	:= r.FormValue("username")
-	age , _		:= strconv.Atoi(r.FormValue("age"))
-	
+	username := r.FormValue("username")
+	age, _ := strconv.Atoi(r.FormValue("age"))
+
 	// insert to DB
 	log.Println("age: ", age)
 	db.Exec("INSERT INTO users (username, age) VALUES (?, ?);", username, age)
-	 
-	log.Println("INSERT INTO users (username, age) VALUES ('",username,"',",age,")","\n")
-	
+
+	log.Println("INSERT INTO users (username, age) VALUES ('", username, "',", age, ")", "\n")
+
 	// redirect
 	http.Redirect(w, r, "/users", http.StatusFound)
 	log.Println("add user end")
 	excuteTime := time.Since(start)
-	fmt.Println("Add user took: ", excuteTime) 
+	fmt.Println("Add user took: ", excuteTime)
 	log.Println("Add user took: ", excuteTime)
 }
 
-func Knownvocab(w http.ResponseWriter, r *http.Request){
+func Knownvocab(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	if r.Method == "GET" {
 		KnownvocabVar := &PageVars{
 			Title: "Knownvocab",
 		}
-		t,err := template.ParseFiles("knownvocab.html")
+		t, err := template.ParseFiles("knownvocab.html")
 		if err != nil {
 			log.Panicln(err.Error())
 		}
 		err = t.Execute(w, KnownvocabVar)
 		if err != nil { // if there is an error
-			log.Print("template executing error: ", err) 
+			log.Print("template executing error: ", err)
 		}
-		
+
 	} else {
-		
-		
+
 		r.ParseForm()
-		content := r.FormValue("content") 
+		content := r.FormValue("content")
 		contentArr := strings.Split(content, "\n")
 		var i int
-		i  = 0
-		for  _, v := range contentArr {
-			
+		i = 0
+		for _, v := range contentArr {
+
 			contentArrArr := strings.Split(v, " ")
-			for _, v1 := range contentArrArr { 
+			for _, v1 := range contentArrArr {
 				thisIsAKnownVocab := false
-				i = i+1
+				i = i + 1
 				listKnowVocab, _ := db.Query("SELECT * FROM known_vocab")
 				var processedString string
 				for listKnowVocab.Next() {
@@ -216,113 +214,114 @@ func Knownvocab(w http.ResponseWriter, r *http.Request){
 					if err != nil {
 						panic(err.Error()) // proper error handling instead of panic in your app
 					}
-					
-					
+
 					reg, err := regexp.Compile("[^a-zA-Z0-9]+")
-				    if err != nil {
-				        log.Fatal(err)
-				    }
-				    processedString = reg.ReplaceAllString(v1, "")
-				    fmt.Println(processedString)
-					
-					if  strings.ToUpper(vocab) == strings.ToUpper(strings.Trim(processedString, " ")) {
+					if err != nil {
+						log.Fatal(err)
+					}
+					processedString = reg.ReplaceAllString(v1, "")
+					fmt.Println(processedString)
+
+					if strings.ToUpper(vocab) == strings.ToUpper(strings.Trim(processedString, " ")) {
 						thisIsAKnownVocab = true
 						break
 					}
-					
-					fmt.Println(">>>>>>>>>",vocab)
-					fmt.Println(">>>>>>>>>",processedString)
-					fmt.Println(">>",thisIsAKnownVocab)
+
+					fmt.Println(">>>>>>>>>", vocab)
+					fmt.Println(">>>>>>>>>", processedString)
+					fmt.Println(">>", thisIsAKnownVocab)
 				}
-				
+
 				if thisIsAKnownVocab == false {
 					db.Exec("insert into known_vocab (known_vocab_word) value (?) ;", strings.Trim(processedString, " "))
 				}
 			}
 		}
-//		numberOfKnowVocab := 0;
-//		Title := "Knownvocab"
-		
+		//		numberOfKnowVocab := 0;
+		//		Title := "Knownvocab"
+
 		http.Redirect(w, r, "/knownvocab", http.StatusFound)
-		
-		
+
 		elapse := time.Since(start)
 		log.Println("Add know vocab take: ", elapse)
 		fmt.Println("Add know vocab take: ", elapse)
 	}
-	
+
 }
 
 type Task struct {
-	Id int
-	Content string
+	Id          int
+	Content     string
 	DateCreated string
-	IdComplete bool
+	IdComplete  bool
+	StartTime   string
+	EndTime     string
+	TotalTime   string
 }
 
 type TaskPage struct {
-	Title string
+	Title    string
 	TaskList []Task
 }
 
-func Tasks (w http.ResponseWriter, r *http.Request){
+func Tasks(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == "GET" {
 		s := []Task{}
 		task := &Task{}
-		tasks, _ := db.Query("SELECT * FROM tasks where DATECREATED = CURDATE()")
-		for tasks.Next()  {
-			tasks.Scan(&task.Id, &task.Content, &task.DateCreated, &task.IdComplete )
+		tasks, _ := db.Query("select tasks.*, TIMEDIFF(tasks.ENDTIME, tasks.STARTTIME) as TOTAL FROM tasks where DATECREATED = CURDATE()")
+		for tasks.Next() {
+			tasks.Scan(&task.Id, &task.Content, &task.DateCreated, &task.IdComplete, &task.StartTime, &task.EndTime, &task.TotalTime)
 			s = append(s, *task)
 		}
 
-		t, _:= template.ParseFiles("tasks.html")
-		er := t.Execute(w, &TaskPage{"Task today", s,})
+		t, _ := template.ParseFiles("tasks.html")
+		er := t.Execute(w, &TaskPage{"Task today", s})
 
 		if er != nil {
-			panic( er)
+			panic(er)
 		}
-	}	else {
+	} else {
 		r.ParseForm()
-		taskContent	:= r.FormValue("task-content")
+		taskContent := r.FormValue("task-content")
 		if len(taskContent) > 0 {
-			db.Exec("insert into tasks (CONTENT, DATECREATED, ISCOMPLETE) VALUES (?, CURDATE(), 0)",taskContent)
+			db.Exec("INSERT into tasks (CONTENT, DATECREATED, ISCOMPLETE, STARTTIME, ENDTIME) VALUES (?, CURDATE(),0,CURTIME(),null)", taskContent)
 		}
 		http.Redirect(w, r, "/tasks", http.StatusFound)
 	}
 }
 
-func Complete(w http.ResponseWriter, r *http.Request){
+func Complete(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
-		db.Exec("update tasks set ISCOMPLETE = 1 WHERE id = ?",string(b))
+		db.Exec("update tasks set ISCOMPLETE = 1,ENDTIME = CURTIME() WHERE id = ?", string(b))
 		w.Write([]byte("Xóa thành công"))
 	}
 }
 
-func LamTiep(w http.ResponseWriter, r *http.Request){
+func LamTiep(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
-		db.Exec("update tasks set ISCOMPLETE = 0 WHERE id = ?",string(b))
+		db.Exec("update tasks set ISCOMPLETE = 0, ENDTIME = null WHERE id = ?", string(b))
 		w.Write([]byte("Xóa thành công"))
 	}
 }
 
-func Xoa(w http.ResponseWriter, r *http.Request){
+func Xoa(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
-		db.Exec("delete from tasks WHERE id = ?",string(b))
+		db.Exec("delete from tasks WHERE id = ?", string(b))
 		w.Write([]byte("Xóa thành công"))
 	}
 }
 
 func main() {
 	defer file.Close()
-	log.SetOutput(file) 
-  
+	log.SetOutput(file)
+
 	http.HandleFunc("/", root)
 	http.HandleFunc("/kinhnghiem", KinhNghiem)
 	http.HandleFunc("/users", listUsers)
