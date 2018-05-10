@@ -13,7 +13,6 @@ import (
 	"strings"
 	 "os"
 	 "regexp"
-	"GoWeb1/src/database"
 	"io/ioutil"
 )
 
@@ -323,9 +322,7 @@ func Xoa(w http.ResponseWriter, r *http.Request){
 func main() {
 	defer file.Close()
 	log.SetOutput(file) 
-
-	database.InitDB()
-
+  
 	http.HandleFunc("/", root)
 	http.HandleFunc("/kinhnghiem", KinhNghiem)
 	http.HandleFunc("/users", listUsers)
