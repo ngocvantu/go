@@ -296,7 +296,7 @@ func Complete(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
 		db.Exec("update tasks set ISCOMPLETE = 1,ENDTIME = CURTIME() WHERE id = ?", string(b))
-		w.Write([]byte("Xóa thành công"))
+		w.Write([]byte("ok"))
 	}
 }
 
@@ -305,7 +305,7 @@ func LamTiep(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
 		db.Exec("update tasks set ISCOMPLETE = 0, ENDTIME = null WHERE id = ?", string(b))
-		w.Write([]byte("Xóa thành công"))
+		w.Write([]byte("ok"))
 	}
 }
 
@@ -314,7 +314,7 @@ func Xoa(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
 		db.Exec("delete from tasks WHERE id = ?", string(b))
-		w.Write([]byte("Xóa thành công"))
+		w.Write([]byte("ok"))
 	}
 }
 
