@@ -308,7 +308,10 @@ func Complete(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
-		db.Exec("update tasks set ISCOMPLETE = 1,ENDTIME = CURTIME(),timetake = ADDTIME(tasks.timetake, TIMEDIFF( CURTIME(),tasks.resume)) and status = 1 WHERE id = ?", string(b))
+		_, er := db.Exec("update tasks set ISCOMPLETE = 1,ENDTIME = CURTIME(),timetake = ADDTIME(tasks.timetake, TIMEDIFF( CURTIME(),tasks.resume)) WHERE id = ? and status = 1 ", string(b))
+		if er != nil {
+			fmt.Println(er)
+		}
 		w.Write([]byte("ok"))
 	}
 }

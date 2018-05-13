@@ -53,7 +53,7 @@
     <div style="text-align:center;" >
             <table class="task_today" id="task_today" >
                 <tr>
-                    <th colspan="5">Task đang làm</th>
+                    <th colspan="5">Tasks</th>
                 </tr>
                 <tr>
                     <th>Task name</th>
@@ -119,12 +119,12 @@
 
             <table class="task_today" id="task_today_completed" style="float: right;" >
                 <tr>
-                    <th colspan="4">Task đã hoàn thành</th>
+                    <th colspan="4">Completed tasks</th>
                 </tr>
                 <tr>
-                    <th>Nội dung task</th>
-                    <th>Kết thúc</th>
-                    <th>Tổng thời gian</th>
+                    <th>Task name</th>
+                    <th>Finish</th>
+                    <th>Total time</th>
                     <th>Thao tác</th>
                 </tr>
             {{range $k, $v := .TaskList}}
