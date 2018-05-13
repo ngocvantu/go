@@ -257,6 +257,10 @@ type Task struct {
 	StartTime   string
 	EndTime     string
 	TotalTime   string
+	Status		int
+	TimeTake	string
+	Pause		string
+	Resume		string
 }
 
 type TaskPage struct {
@@ -269,9 +273,18 @@ func Tasks(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		s := []Task{}
 		task := &Task{}
-		tasks, _ := db.Query("select tasks.*, TIMEDIFF(tasks.ENDTIME, tasks.STARTTIME) as TOTAL FROM tasks where DATECREATED = CURDATE()")
+		var startTime string
+		var status int
+		tasks, _ := db.Query("select tasks.*, ADDTIME(tasks.timetake, TIMEDIFF( CURTIME(),tasks.resume)) as TOTAL FROM tasks where DATECREATED = CURDATE()")
 		for tasks.Next() {
-			tasks.Scan(&task.Id, &task.Content, &task.DateCreated, &task.IdComplete, &task.StartTime, &task.EndTime, &task.TotalTime)
+			startTime = ""
+
+			er :=tasks.Scan(&task.Id, &task.Content, &task.DateCreated, &task.IdComplete, &startTime, &task.EndTime,&task.Status, &task.TimeTake, &task.Pause, &task.Resume, &task.TotalTime)
+			if er != nil {
+				fmt.Println(er.Error())
+			}
+			task.StartTime = startTime
+			_ =  (&status)
 			s = append(s, *task)
 		}
 
@@ -285,7 +298,7 @@ func Tasks(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		taskContent := r.FormValue("task-content")
 		if len(taskContent) > 0 {
-			db.Exec("INSERT into tasks (CONTENT, DATECREATED, ISCOMPLETE, STARTTIME, ENDTIME) VALUES (?, CURDATE(),0,CURTIME(),null)", taskContent)
+			db.Exec("INSERT into tasks (CONTENT, DATECREATED, ISCOMPLETE) VALUES (?, CURDATE(),0)", taskContent)
 		}
 		http.Redirect(w, r, "/tasks", http.StatusFound)
 	}
@@ -295,7 +308,7 @@ func Complete(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
-		db.Exec("update tasks set ISCOMPLETE = 1,ENDTIME = CURTIME() WHERE id = ?", string(b))
+		db.Exec("update tasks set ISCOMPLETE = 1,ENDTIME = CURTIME(),timetake = ADDTIME(tasks.timetake, TIMEDIFF( CURTIME(),tasks.resume)) and status = 1 WHERE id = ?", string(b))
 		w.Write([]byte("ok"))
 	}
 }
@@ -304,7 +317,7 @@ func LamTiep(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
-		db.Exec("update tasks set ISCOMPLETE = 0, ENDTIME = null WHERE id = ?", string(b))
+		db.Exec("update tasks set ISCOMPLETE = 0,status =1, ENDTIME = TIME('00:00:00'),resume = CURTIME()  WHERE id = ?", string(b))
 		w.Write([]byte("ok"))
 	}
 }
@@ -314,6 +327,33 @@ func Xoa(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		b, _ := ioutil.ReadAll(r.Body)
 		db.Exec("delete from tasks WHERE id = ?", string(b))
+		w.Write([]byte("ok"))
+	}
+}
+
+func Start(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	if r.Method == "POST" {
+		b, _ := ioutil.ReadAll(r.Body)
+		db.Exec("update tasks set  STARTTIME = CURTIME(),resume = CURTIME(), status = 1 WHERE id = ? AND STARTTIME = TIME('00:00:00')", string(b))
+		w.Write([]byte("ok"))
+	}
+}
+
+func Pause(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	if r.Method == "POST" {
+		b, _ := ioutil.ReadAll(r.Body)
+		db.Exec("update tasks set status = 2, timetake = ADDTIME(tasks.timetake, TIMEDIFF( CURTIME(),tasks.resume)) WHERE id = ? AND STARTTIME <> TIME('00:00:00')", string(b))
+		w.Write([]byte("ok"))
+	}
+}
+
+func Resume(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	if r.Method == "POST" {
+		b, _ := ioutil.ReadAll(r.Body)
+		db.Exec("update tasks set status = 1, resume = CURTIME() WHERE status = 2 and id = ? AND STARTTIME <> TIME('00:00:00')", string(b))
 		w.Write([]byte("ok"))
 	}
 }
@@ -332,6 +372,9 @@ func main() {
 	http.HandleFunc("/complete", Complete)
 	http.HandleFunc("/lamtiep", LamTiep)
 	http.HandleFunc("/xoa", Xoa)
+	http.HandleFunc("/start", Start)
+	http.HandleFunc("/pause", Pause)
+	http.HandleFunc("/resume", Resume)
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	log.Fatal(http.ListenAndServe(":8090", nil))
