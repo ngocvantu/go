@@ -33,13 +33,14 @@
 
         input[type=text] {
             width: 40%;
-            padding: 12px 20px;
-            margin: 8px 0;
+            padding: 10px 20px;
+            margin: 8px -2px;
             box-sizing: border-box;
         }
 
          input[type=submit]{
-             padding: 12px 22px;
+             width: 7%;
+             padding: 9px 0px;
              margin: 8px 0;
          }
 
@@ -144,8 +145,8 @@
     <div style="clear: left;" ></div>
     <div id="addTask" >
         <form action="/tasks" method="post" >
-            <input type="text" id="task-content" name="task-content" placeholder="Add task" autofocus >
-            <input type="submit" >
+            <td><input type="text" id="task-content"  name="task-content" placeholder="Add task" autofocus ></td>
+            <td><input type="submit" value="Add" ></td>
         </form>
     </div>
 
