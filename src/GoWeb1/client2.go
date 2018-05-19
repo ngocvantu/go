@@ -17,15 +17,15 @@ func main(){
 	//fmt.Println(string(doc.))
 
 
-	out, err := exec.Command("/usr/bin/yum", "clean", "all").Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%s\n", out)
+	//out, err := exec.Command("/usr/bin/yum", "clean", "all").Output()
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//fmt.Printf("%s\n", out)
 
 	out1, err1 := exec.Command("/usr/bin/yum", "update" ).Output()
 	if err1 != nil {
-		fmt.Println(err.Error())
+		fmt.Println(err1.Error())
 		log.Fatal(err1)
 	}
 	fmt.Printf("%s\n", out1)
