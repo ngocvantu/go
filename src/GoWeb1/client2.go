@@ -16,7 +16,7 @@ func main(){
 	//doc, _ := html.Parse(res.Body)
 	//fmt.Println(string(doc.))
 
-	out, err := exec.Command("/usr/bin/yum clean all").Output()
+	out, err := exec.Command("/usr/bin/yum", "clean", "all").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
