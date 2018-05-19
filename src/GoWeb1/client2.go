@@ -21,4 +21,9 @@ func main(){
 		log.Fatal(err)
 	}
 	fmt.Printf("%s\n", out)
+	out1, err1 := exec.Command("/usr/bin/yum", "update" ).Output()
+	if err1 != nil {
+		log.Fatal(err1)
+	}
+	fmt.Printf("%s\n", out1)
 }
