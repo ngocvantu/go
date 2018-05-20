@@ -3,7 +3,6 @@ package main
 import (
 	"os/exec"
 	"log"
-	"fmt"
 	"os"
 )
 
@@ -31,7 +30,7 @@ func main(){
 
 func executeCommand(cmds []*exec.Cmd){
 	for _, cmd := range cmds {
-		fmt.Println("Executing:",cmd.Args, "...")
+		log.Println("Executing:",cmd.Args, "...")
 		cmd.Stdout = os.Stdout
 		cmd.Stdin = os.Stdin
 		cmd.Stderr = os.Stderr
@@ -40,6 +39,6 @@ func executeCommand(cmds []*exec.Cmd){
 			log.Fatal(err1)
 			return
 		}
-		fmt.Println("End success:", cmd.Args)
+		log.Println("End success:",cmd.Args )
 	}
 }
