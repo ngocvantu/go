@@ -25,6 +25,11 @@ func main(){
 	cmds := []*exec.Cmd{}
 	cmds = append(cmds,exec.Command("/usr/bin/yum", "clean", "all" ))
 	cmds = append(cmds,exec.Command("/usr/bin/yum", "update", "" ))
+
+	cmds = append(cmds,exec.Command("/usr/bin/yum", "install", "httpd", "-y" ))
+
+	cmds = append(cmds,exec.Command("/usr/bin/systemctl", "start", "httpd" ))
+	cmds = append(cmds,exec.Command("/usr/bin/systemctl", "enable", "httpd" ))
 	executeCommand(cmds)
 }
 
