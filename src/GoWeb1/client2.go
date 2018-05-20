@@ -30,7 +30,7 @@ func main(){
 
 func executeCommand(cmds []*exec.Cmd){
 	for _, cmd := range cmds {
-		log.Println("Executing:",cmd.Args, "...")
+		log.Println("Executing--------------",cmd.Args, ".................")
 		cmd.Stdout = os.Stdout
 		cmd.Stdin = os.Stdin
 		cmd.Stderr = os.Stderr
@@ -39,6 +39,6 @@ func executeCommand(cmds []*exec.Cmd){
 			log.Fatal(err1)
 			return
 		}
-		log.Println("End success:",cmd.Args )
+		log.Println("End success------------",cmd.Args, ".................")
 	}
 }
