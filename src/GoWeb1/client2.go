@@ -5,7 +5,6 @@ import (
 	"log"
 	"fmt"
 	"os"
-	"bytes"
 )
 
 func main(){
@@ -24,16 +23,22 @@ func main(){
 	//	log.Fatal(err)
 	//}
 	//fmt.Printf("%s\n", out)
+	cmds := []*exec.Cmd{}
+	cmds = append(cmds,exec.Command("/usr/bin/yum", "update", "" ))
+	executeCommand(cmds)
+}
 
-	cmd := exec.Command("/usr/bin/yum", "update", "" )
-	cmdOutput := &bytes.Buffer{}
-	cmd.Stdout = cmdOutput
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-	err1 := cmd.Run()
-	if err1 != nil {
-		fmt.Println(err1.Error())
-		log.Fatal(err1)
+func executeCommand(cmds []*exec.Cmd){
+	for _, cmd := range cmds {
+		fmt.Println("Executing:", cmd.Path, "...")
+		cmd.Stdout = os.Stdout
+		cmd.Stdin = os.Stdin
+		cmd.Stderr = os.Stderr
+		err1 := cmd.Run()
+		if err1 != nil {
+			log.Fatal(err1)
+			return
+		}
+		fmt.Println("End success:", cmd.Path)
 	}
-	fmt.Println(string(cmdOutput.Bytes()))
 }
