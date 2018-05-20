@@ -24,13 +24,14 @@ func main(){
 	//}
 	//fmt.Printf("%s\n", out)
 	cmds := []*exec.Cmd{}
+	cmds = append(cmds,exec.Command("/usr/bin/yum", "clean", "all" ))
 	cmds = append(cmds,exec.Command("/usr/bin/yum", "update", "" ))
 	executeCommand(cmds)
 }
 
 func executeCommand(cmds []*exec.Cmd){
 	for _, cmd := range cmds {
-		fmt.Println("Executing:", cmd.Path, "...")
+		fmt.Println("Executing:",cmd.Args, "...")
 		cmd.Stdout = os.Stdout
 		cmd.Stdin = os.Stdin
 		cmd.Stderr = os.Stderr
@@ -39,6 +40,6 @@ func executeCommand(cmds []*exec.Cmd){
 			log.Fatal(err1)
 			return
 		}
-		fmt.Println("End success:", cmd.Path)
+		fmt.Println("End success:", cmd.Args)
 	}
 }
